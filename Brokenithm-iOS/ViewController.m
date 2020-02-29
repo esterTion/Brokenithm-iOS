@@ -10,17 +10,21 @@
 
 @interface ViewController ()
 
-@property UIView *airIOView;
-@property UIView *sliderIOView;
-@property CAGradientLayer *ledBackground;
-
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    // network permission
+    {
+        NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://captive.apple.com/"]];
+        [NSURLConnection sendAsynchronousRequest:req
+                                           queue:[NSOperationQueue mainQueue]
+                               completionHandler:^(NSURLResponse *resp, NSData *data, NSError *error) {}];
+    }
+    
     CGRect screenSize = [UIScreen mainScreen].bounds;
     float screenWidth = screenSize.size.width;
     float screenHeight = screenSize.size.height;
@@ -30,8 +34,6 @@
     self.sliderIOView = [[UIView alloc] initWithFrame:CGRectMake(0, offsetY, screenWidth, sliderHeight)];
     [self.view addSubview:self.airIOView];
     [self.view addSubview:self.sliderIOView];
-    //self.airIOView.backgroundColor = [UIColor blueColor];
-    //self.sliderIOView.backgroundColor = [UIColor redColor];
     self.ledBackground = [CAGradientLayer layer];
     self.ledBackground.frame = CGRectMake(0, 0, screenWidth, sliderHeight);
     [self.sliderIOView.layer addSublayer:self.ledBackground];
@@ -67,11 +69,15 @@
         [self.sliderIOView addSubview:sliderInput];
     }
     
+    server = [[SocketDelegate alloc] init];
+    server.parentVc = self;
+    NSLog(@"server created");
     
     dispatch_async(dispatch_get_main_queue(), ^(){
         char ledDataChar[32*3] = {0,254,254,0,254,254,0,254,254,0,0,0,254,254,254,254,254,254,254,254,254,0,0,0,10,10,10,10,10,10,10,10,10,0,0,0,0,254,128,0,254,128,0,254,128,0,254,128,0,254,128,0,254,128,0,254,128,0,0,0,0,0,254,0,0,254,0,0,254,0,0,254,0,0,254,0,0,0,0,0,254,0,0,254,0,0,254,0,0,254,0,0,254,0,0,0};
         NSData *ledData = [NSData dataWithBytes:ledDataChar length:32*3];
         [self updateLed:ledData];
+        NSLog(@"displayed demo led");
     });
 }
 
