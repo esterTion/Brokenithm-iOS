@@ -24,4 +24,9 @@
       <Filter>资源文件</Filter>
     </Library>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
