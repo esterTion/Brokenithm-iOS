@@ -1,6 +1,6 @@
 ## Brokenithm-iOS  
 
-A version of Brokenithm, based on Brokenithm-Evolved, Based on Brokenithm.   
+A version of Brokenithm, based on Brokenithm-Evolved, based on Brokenithm.   
 Using usbmux to communicate over USB, rather than wifi to prevent sudden lag.   
 
 ### Branches

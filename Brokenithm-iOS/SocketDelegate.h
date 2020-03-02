@@ -17,9 +17,11 @@
 
 @interface SocketDelegate : NSObject {
     GCDAsyncSocket *server;
-    NSMutableArray *connectedSockets;
+    NSMutableArray<GCDAsyncSocket*> *connectedSockets;
 }
 @property ViewController *parentVc;
+
+- (void)updateIO:(NSData*)io;
 
 @end
 

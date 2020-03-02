@@ -16,18 +16,22 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    ((MainView*)(self.view)).parent = self;
+    self.view.multipleTouchEnabled = YES;
     
     // network permission
+    /*
     {
         NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://captive.apple.com/"]];
         [NSURLConnection sendAsynchronousRequest:req
                                            queue:[NSOperationQueue mainQueue]
                                completionHandler:^(NSURLResponse *resp, NSData *data, NSError *error) {}];
     }
+     */
     
     CGRect screenSize = [UIScreen mainScreen].bounds;
-    float screenWidth = screenSize.size.width;
-    float screenHeight = screenSize.size.height;
+    screenWidth = screenSize.size.width;
+    screenHeight = screenSize.size.height;
     float offsetY = 0, sliderHeight = screenHeight*0.6;
     self.airIOView = [[UIView alloc] initWithFrame:CGRectMake(0, offsetY, screenWidth, screenHeight*0.4)];
     offsetY += screenHeight*0.4;
@@ -102,5 +106,51 @@
 -(UIRectEdge)preferredScreenEdgesDeferringSystemGestures { return UIRectEdgeAll; }
 -(BOOL)prefersHomeIndicatorAutoHidden { return YES; }
 -(UIStatusBarStyle) preferredStatusBarStyle { return UIStatusBarStyleLightContent;}
+
+-(void)updateTouches:(UIEvent *)event {
+    float airHeight = screenHeight * 0.4;
+    float airIOHeight = airHeight / 6;
+    float sliderIOWidth = screenWidth / 16;
+    struct ioBuf buf = {0};
+    buf.len = sizeof(buf) - 1;
+    buf.head[0] = 'I';
+    buf.head[1] = 'N';
+    buf.head[2] = 'P';
+    for (UITouch *touch in event.allTouches) {
+        UITouchPhase phase = touch.phase;
+        if (phase == UITouchPhaseBegan || phase == UITouchPhaseMoved || phase == UITouchPhaseStationary) {
+            CGPoint point = [touch locationInView:self.view];
+            float pointX = screenWidth - point.x, pointY = point.y;
+            if (pointY < airHeight) {
+                int idx = point.y / airIOHeight;
+                uint8_t airIdx[] = {4,5,2,3,0,1};
+                buf.air[airIdx[idx]] = 1;
+            } else {
+                float pointPos = pointX / sliderIOWidth;
+                int idx = pointPos;
+                int setIdx = idx*2;
+                if (buf.slider[ setIdx ] != 0) {
+                    setIdx++;
+                }
+                buf.slider[ setIdx ] = 0x80;
+                if (idx > 0 && (pointPos - idx) * 4 < 1) {
+                    setIdx = (idx - 1) * 2;
+                    if (buf.slider[ setIdx ] != 0) {
+                        setIdx++;
+                    }
+                    buf.slider[ setIdx ] = 0x80;
+                } else if (idx < 31 && (pointPos - idx) * 4 > 3) {
+                    setIdx = (idx + 1) * 2;
+                    if (buf.slider[ setIdx ] != 0) {
+                        setIdx++;
+                    }
+                    buf.slider[ setIdx ] = 0x80;
+                }
+            }
+        }
+    }
+    NSData* io = [NSData dataWithBytes:&buf length:sizeof(buf)];
+    [server updateIO:io];
+}
 
 @end

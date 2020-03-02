@@ -13,6 +13,7 @@
 		1968E72E24086C2B00784829 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1968E72D24086C2B00784829 /* Assets.xcassets */; };
 		1968E73424086C2B00784829 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1968E73324086C2B00784829 /* main.m */; };
 		19F13E2A240A6F2200809B83 /* SocketDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 19F13E29240A6F2200809B83 /* SocketDelegate.m */; };
+		19F13E2C240CDE4000809B83 /* MainView.m in Sources */ = {isa = PBXBuildFile; fileRef = 19F13E2B240CDE3F00809B83 /* MainView.m */; };
 		D023549DD3B09C46EBA2E321 /* libPods-Brokenithm-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A7EE02147010843456A2152 /* libPods-Brokenithm-iOS.a */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +29,8 @@
 		1968E73324086C2B00784829 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		19F13E22240A683200809B83 /* SocketDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SocketDelegate.h; sourceTree = "<group>"; };
 		19F13E29240A6F2200809B83 /* SocketDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SocketDelegate.m; sourceTree = "<group>"; };
+		19F13E2B240CDE3F00809B83 /* MainView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainView.m; sourceTree = "<group>"; };
+		19F13E2D240CDF5400809B83 /* MainView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainView.h; sourceTree = "<group>"; };
 		259804D4CC006A58255BC938 /* Pods-Brokenithm-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Brokenithm-iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Brokenithm-iOS/Pods-Brokenithm-iOS.release.xcconfig"; sourceTree = "<group>"; };
 		5A7EE02147010843456A2152 /* libPods-Brokenithm-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Brokenithm-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B78B36B35C6A90E4F71F84B4 /* Pods-Brokenithm-iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Brokenithm-iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Brokenithm-iOS/Pods-Brokenithm-iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -68,6 +71,8 @@
 			children = (
 				1968E72424086C2200784829 /* AppDelegate.h */,
 				1968E72524086C2200784829 /* AppDelegate.m */,
+				19F13E2D240CDF5400809B83 /* MainView.h */,
+				19F13E2B240CDE3F00809B83 /* MainView.m */,
 				1968E72724086C2200784829 /* ViewController.h */,
 				1968E72824086C2200784829 /* ViewController.m */,
 				1968E72A24086C2200784829 /* Main.storyboard */,
@@ -188,6 +193,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				19F13E2C240CDE4000809B83 /* MainView.m in Sources */,
 				1968E72924086C2200784829 /* ViewController.m in Sources */,
 				1968E73424086C2B00784829 /* main.m in Sources */,
 				1968E72624086C2200784829 /* AppDelegate.m in Sources */,
