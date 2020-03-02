@@ -1,5 +1,5 @@
 //
-//  MainView.h
+//  MainApp.h
 //  Brokenithm-iOS
 //
 //  Created by ester on 2020/3/2.
@@ -8,10 +8,9 @@
 
 #pragma once
 
-#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "ViewController.h"
 
-@interface MainView : UIView
-@property ViewController *parent;
+@interface MainApp : UIApplication
+@property ViewController *vc;
 @end

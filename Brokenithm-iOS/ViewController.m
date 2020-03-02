@@ -16,8 +16,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    ((MainView*)(self.view)).parent = self;
-    self.view.multipleTouchEnabled = YES;
     
     // network permission
     /*
