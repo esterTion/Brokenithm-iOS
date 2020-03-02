@@ -22,6 +22,15 @@ namespace Brokenithm_Evolved_iOS
 
         static void Main(string[] args)
         {
+            Console.Title = "Brokenithm-Evolved-iOS";
+            Console.WriteLine("=================================================");
+            Console.WriteLine("=             Brokenithm-Evolved-iOS:           =");
+            Console.WriteLine("=  Brokenithm with full IO and USB connection   =");
+            Console.WriteLine("=                v0.1 by esterTion              =");
+            Console.WriteLine("=              Original: thebit.link            =");
+            Console.WriteLine("=================================================");
+            Console.WriteLine("");
+
             NativeLibraries.Load();
             idevice = LibiMobileDevice.Instance.iDevice;
             iDeviceError status;
@@ -99,8 +108,8 @@ namespace Brokenithm_Evolved_iOS
             status = idevice.idevice_connect(device, 24864, out conn);
             if (status != iDeviceError.Success)
             {
-                Console.WriteLine(string.Format("connect failed: {0}", status));
-                Thread.Sleep(5000);
+                //Console.WriteLine(string.Format("connect failed: {0}", status));
+                Thread.Sleep(1000);
                 Thread thread = new Thread(new ParameterizedThreadStart(connectDevice));
                 thread.Start(udid);
                 return;
@@ -183,6 +192,7 @@ namespace Brokenithm_Evolved_iOS
             conn.Dispose();
             connection_map.Remove(udid);
             Console.WriteLine("disconnected");
+            if (exiting) return;
             Thread.Sleep(1000);
             {
                 Thread thread = new Thread(new ParameterizedThreadStart(connectDevice));
@@ -228,13 +238,16 @@ namespace Brokenithm_Evolved_iOS
         }
         public static void BroadcastLEDStatus(byte[] led)
         {
-            
+            uint sent = 0;
+            byte[] head = { 99, (byte)'L', (byte)'E', (byte)'D' };
             foreach (var conn in connection_map)
             {
-                uint sent = 0;
-                byte[] head = { 99, (byte)'L', (byte)'E', (byte)'D' };
-                idevice.idevice_connection_send(conn.Value, head, 4, ref sent);
-                idevice.idevice_connection_send(conn.Value, led, 96, ref sent);
+                try
+                {
+                    idevice.idevice_connection_send(conn.Value, head, 4, ref sent);
+                    idevice.idevice_connection_send(conn.Value, led, 96, ref sent);
+                }
+                catch (Exception e) { }
             }
         }
     }
