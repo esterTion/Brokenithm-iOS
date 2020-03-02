@@ -14,7 +14,7 @@
 #import <UIKit/UIKit.h>
 #import <CocoaAsyncSocket/GCDAsyncSocket.h>
 #import "SocketDelegate.h"
-#import "MainView.h"
+#import "MainApp.h"
 
 @interface ViewController : UIViewController {
     float screenWidth;

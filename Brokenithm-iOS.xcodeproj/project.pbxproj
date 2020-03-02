@@ -18,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1277586B240D1432002C27EE /* MainApp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainApp.h; sourceTree = "<group>"; };
 		1968E72124086C2200784829 /* Brokenithm-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brokenithm-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1968E72424086C2200784829 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1968E72524086C2200784829 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -29,7 +30,6 @@
 		1968E73324086C2B00784829 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		19F13E22240A683200809B83 /* SocketDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SocketDelegate.h; sourceTree = "<group>"; };
 		19F13E29240A6F2200809B83 /* SocketDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SocketDelegate.m; sourceTree = "<group>"; };
-		19F13E2E240CFC8900809B83 /* MainApp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainApp.h; sourceTree = "<group>"; };
 		19F40719240CFCFF00D7F506 /* MainApp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainApp.m; sourceTree = "<group>"; };
 		259804D4CC006A58255BC938 /* Pods-Brokenithm-iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Brokenithm-iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Brokenithm-iOS/Pods-Brokenithm-iOS.release.xcconfig"; sourceTree = "<group>"; };
 		5A7EE02147010843456A2152 /* libPods-Brokenithm-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Brokenithm-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,7 +79,7 @@
 				1968E73324086C2B00784829 /* main.m */,
 				19F13E22240A683200809B83 /* SocketDelegate.h */,
 				19F13E29240A6F2200809B83 /* SocketDelegate.m */,
-				19F13E2E240CFC8900809B83 /* MainApp.h */,
+				1277586B240D1432002C27EE /* MainApp.h */,
 				19F40719240CFCFF00D7F506 /* MainApp.m */,
 			);
 			path = "Brokenithm-iOS";
@@ -333,7 +333,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = K9CP5766XY;
+				DEVELOPMENT_TEAM = MXJJEEMF3U;
 				INFOPLIST_FILE = "Brokenithm-iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -352,7 +352,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = K9CP5766XY;
+				DEVELOPMENT_TEAM = MXJJEEMF3U;
 				INFOPLIST_FILE = "Brokenithm-iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
