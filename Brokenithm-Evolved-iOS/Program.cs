@@ -157,11 +157,27 @@ namespace Brokenithm_Evolved_iOS
                     }
                     break;
                 }
-                uint len = buf[0];
+                byte len = buf[0];
                 status = idevice.idevice_connection_receive_timeout(conn, buf, len, ref read, 5);
                 if (status != iDeviceError.Success)
                 {
                     break;
+                }
+                if (
+                    len >= 3+6+32 &&
+                    buf[0] == 'I' &&
+                    buf[1] == 'N' &&
+                    buf[2] == 'P'
+                    )
+                {
+                    sharedBufferAccessor.WriteArray<byte>(0, buf, 3, 6 + 32);
+                    if (len > 3 + 6 + 32)
+                    {
+                        sharedBufferAccessor.WriteArray<byte>(6+32+96, buf, 3+6+32, len - (3 + 6 + 32));
+                    }
+                } else
+                {
+                    Console.WriteLine("invalid packet");
                 }
             }
             conn.Dispose();
