@@ -103,7 +103,8 @@
 -(BOOL)prefersStatusBarHidden { return kCFCoreFoundationVersionNumber < 1443.00; }
 -(UIRectEdge)preferredScreenEdgesDeferringSystemGestures { return UIRectEdgeAll; }
 -(BOOL)prefersHomeIndicatorAutoHidden { return YES; }
--(UIStatusBarStyle) preferredStatusBarStyle { return UIStatusBarStyleLightContent;}
+-(UIStatusBarStyle) preferredStatusBarStyle { return UIStatusBarStyleLightContent; }
+-(UIEditingInteractionConfiguration)editingInteractionConfiguration { return UIEditingInteractionConfigurationNone; }
 
 -(void)updateTouches:(UIEvent *)event {
     float airHeight = screenHeight * 0.4;

@@ -15,15 +15,17 @@
 
 - (id)init {
     server = [[GCDAsyncSocket alloc] initWithDelegate:(id)self delegateQueue:dispatch_get_main_queue()];
-    {
-        NSError *error = nil;
-        if (![server acceptOnPort:24864 error:&error]) {
-            NSLog(@"error creating server: %@", error);
-            return nil;
-        }
-    }
+    [self acceptConnection];
     connectedSockets = [[NSMutableArray alloc] initWithCapacity:1];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(becomeInactive) name:UIApplicationWillResignActiveNotification object:nil];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(becomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
     return [super init];
+}
+- (void)acceptConnection {
+    NSError *error = nil;
+    if (![server acceptOnPort:24864 error:&error]) {
+        NSLog(@"error creating server: %@", error);
+    }
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket {
@@ -78,6 +80,20 @@
     for (GCDAsyncSocket* sock in connectedSockets) {
         [sock writeData:io withTimeout:-1 tag:0];
     }
+}
+
+- (void)becomeInactive {
+    server.IPv4Enabled = NO;
+    server.IPv6Enabled = NO;
+    for (GCDAsyncSocket* sock in connectedSockets) {
+        [sock disconnect];
+        [connectedSockets removeObject:sock];
+    }
+}
+- (void)becomeActive {
+    server.IPv4Enabled = YES;
+    server.IPv6Enabled = YES;
+    [self acceptConnection];
 }
 
 @end
