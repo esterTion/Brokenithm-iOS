@@ -56,7 +56,6 @@
             NSData *msgData = [data subdataWithRange:NSMakeRange(0, 3)];
             NSString *message = [[NSString alloc] initWithData:msgData encoding:NSASCIIStringEncoding];
             if ([message isEqualToString:@"LED"] && data.length >= 99) {
-                NSLog(@"received led update");
                 NSData *led = [data subdataWithRange:NSMakeRange(3, 96)];
                 [self.parentVc updateLed:led];
             }
@@ -89,6 +88,7 @@
         [sock disconnect];
         [connectedSockets removeObject:sock];
     }
+    [server disconnect];
 }
 - (void)becomeActive {
     server.IPv4Enabled = YES;
