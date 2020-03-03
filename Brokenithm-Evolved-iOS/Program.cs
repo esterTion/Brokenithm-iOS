@@ -27,7 +27,7 @@ namespace Brokenithm_Evolved_iOS
             Console.WriteLine("=================================================");
             Console.WriteLine("=             Brokenithm-Evolved-iOS:           =");
             Console.WriteLine("=  Brokenithm with full IO and USB connection   =");
-            Console.WriteLine("=                v0.1 by esterTion              =");
+            Console.WriteLine("=                v0.2 by esterTion              =");
             Console.WriteLine("=              Original: thebit.link            =");
             Console.WriteLine("=================================================");
             Console.WriteLine("");
