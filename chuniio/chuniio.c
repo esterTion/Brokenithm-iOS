@@ -11,14 +11,45 @@ static unsigned int __stdcall chuni_io_slider_thread_proc(void *ctx);
 
 static bool chuni_io_coin;
 static uint16_t chuni_io_coins;
-static uint8_t chuni_io_hand_pos;
 static HANDLE chuni_io_slider_thread;
 static bool chuni_io_slider_stop_flag;
 static struct chuni_io_config chuni_io_cfg;
 
+struct IPCMemoryInfo
+{
+    uint8_t airIoStatus[6];
+    uint8_t sliderIoStatus[32];
+    uint8_t ledRgbData[32 * 3];
+};
+typedef struct IPCMemoryInfo IPCMemoryInfo;
+static HANDLE FileMappingHandle;
+IPCMemoryInfo* FileMapping;
+
+void initSharedMemory()
+{
+    if (FileMapping)
+    {
+        return;
+    }
+    if ((FileMappingHandle = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, sizeof(IPCMemoryInfo), "Local\\BROKENITHM_SHARED_BUFFER")) == 0)
+    {
+        return;
+    }
+
+    if ((FileMapping = (IPCMemoryInfo*)MapViewOfFile(FileMappingHandle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(IPCMemoryInfo))) == 0)
+    {
+        return;
+    }
+
+    memset(FileMapping, 0, sizeof(IPCMemoryInfo));
+    SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
+}
+
 HRESULT chuni_io_jvs_init(void)
 {
     chuni_io_config_load(&chuni_io_cfg, L".\\segatools.ini");
+
+    initSharedMemory();
 
     return S_OK;
 }
@@ -53,18 +84,8 @@ void chuni_io_jvs_poll(uint8_t *opbtn, uint8_t *beams)
         *opbtn |= 0x02; /* Service */
     }
 
-    if (GetAsyncKeyState(chuni_io_cfg.vk_ir)) {
-        if (chuni_io_hand_pos < 6) {
-            chuni_io_hand_pos++;
-        }
-    } else {
-        if (chuni_io_hand_pos > 0) {
-            chuni_io_hand_pos--;
-        }
-    }
-
     for (i = 0 ; i < 6 ; i++) {
-        if (chuni_io_hand_pos > i) {
+        if (FileMapping && FileMapping->airIoStatus[i]) {
             *beams |= (1 << i);
         }
     }
@@ -109,23 +130,22 @@ void chuni_io_slider_stop(void)
 
 void chuni_io_slider_set_leds(const uint8_t *rgb)
 {
+    if (FileMapping)
+    {
+        memcpy(FileMapping->ledRgbData, rgb, 32 * 3);
+    }
 }
 
 static unsigned int __stdcall chuni_io_slider_thread_proc(void *ctx)
 {
     chuni_io_slider_callback_t callback;
-    uint8_t pressure[32];
-    size_t i;
+    uint8_t pressure[32] = { 0 };
 
     callback = ctx;
 
     while (!chuni_io_slider_stop_flag) {
-        for (i = 0 ; i < _countof(pressure) ; i++) {
-            if (GetAsyncKeyState(chuni_io_cfg.vk_cell[i]) & 0x8000) {
-                pressure[i] = 128;
-            } else {
-                pressure[i] = 0;
-            }
+        if (FileMapping) {
+            memcpy(pressure, FileMapping->sliderIoStatus, 32);
         }
 
         callback(pressure);
