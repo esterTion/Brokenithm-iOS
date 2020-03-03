@@ -19,6 +19,7 @@ namespace Brokenithm_Evolved_iOS
         public static MemoryMappedFile sharedBuffer;
         public static MemoryMappedViewAccessor sharedBufferAccessor;
         public static bool exiting = false;
+        public static iDeviceEventCallBack _eventCallback;
 
         static void Main(string[] args)
         {
@@ -34,49 +35,8 @@ namespace Brokenithm_Evolved_iOS
             NativeLibraries.Load();
             idevice = LibiMobileDevice.Instance.iDevice;
             iDeviceError status;
-            status = LibiMobileDevice.Instance.iDevice.idevice_event_subscribe((ref iDeviceEvent e, IntPtr user_data) =>
-            {
-                string udid = e.udidString;
-                switch (e.@event)
-                {
-                    case iDeviceEventType.DeviceAdd:
-                        {
-                            Console.WriteLine(string.Format("device add\tudid: {0}", udid));
-                            if (device_map.ContainsKey(udid))
-                            {
-                                return;
-                            }
-                            iDeviceHandle device;
-                            status = idevice.idevice_new(out device, e.udidString);
-                            if (status != iDeviceError.Success)
-                            {
-                                Console.WriteLine("Create device failed: {0}", status);
-                                return;
-                            }
-                            device_map[udid] = device;
-
-                            Thread thread = new Thread(new ParameterizedThreadStart(connectDevice));
-                            thread.Start(udid);
-                            break;
-                        }
-                    case iDeviceEventType.DevicePaired:
-                        {
-                            Console.WriteLine(string.Format("device paired\tudid: {0}", udid));
-                            break;
-                        }
-                    case iDeviceEventType.DeviceRemove:
-                        {
-                            Console.WriteLine(string.Format("device remove\tudid: {0}", udid));
-                            if (device_map.ContainsKey(udid))
-                            {
-                                iDeviceHandle device = device_map[udid];
-                                device.Dispose();
-                                device_map.Remove(udid);
-                            }
-                            break;
-                        }
-                }
-            }, IntPtr.Zero);
+            _eventCallback = new iDeviceEventCallBack(eventCallback);
+            status = LibiMobileDevice.Instance.iDevice.idevice_event_subscribe(_eventCallback, IntPtr.Zero);
 
             MemoryMappedFileSecurity CustomSecurity = new MemoryMappedFileSecurity();
             SecurityIdentifier sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
@@ -93,6 +53,51 @@ namespace Brokenithm_Evolved_iOS
             Console.WriteLine("Waiting for device...");
             while (Console.ReadKey().Key != ConsoleKey.Q) { }
             exiting = true;
+        }
+
+        public static void eventCallback(ref iDeviceEvent e, IntPtr user_data)
+        {
+            iDeviceError status;
+            string udid = e.udidString;
+            switch (e.@event)
+            {
+                case iDeviceEventType.DeviceAdd:
+                    {
+                        Console.WriteLine(string.Format("device add\tudid: {0}", udid));
+                        if (device_map.ContainsKey(udid))
+                        {
+                            return;
+                        }
+                        iDeviceHandle device;
+                        status = idevice.idevice_new(out device, e.udidString);
+                        if (status != iDeviceError.Success)
+                        {
+                            Console.WriteLine("Create device failed: {0}", status);
+                            return;
+                        }
+                        device_map[udid] = device;
+
+                        Thread thread = new Thread(new ParameterizedThreadStart(connectDevice));
+                        thread.Start(udid);
+                        break;
+                    }
+                case iDeviceEventType.DevicePaired:
+                    {
+                        Console.WriteLine(string.Format("device paired\tudid: {0}", udid));
+                        break;
+                    }
+                case iDeviceEventType.DeviceRemove:
+                    {
+                        Console.WriteLine(string.Format("device remove\tudid: {0}", udid));
+                        if (device_map.ContainsKey(udid))
+                        {
+                            iDeviceHandle device = device_map[udid];
+                            device.Dispose();
+                            device_map.Remove(udid);
+                        }
+                        break;
+                    }
+            }
         }
 
         public static void connectDevice(object arg)
