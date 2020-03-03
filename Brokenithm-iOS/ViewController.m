@@ -8,7 +8,9 @@
 
 #import "ViewController.h"
 
-@interface ViewController ()
+@interface ViewController () {
+    BOOL pendingHideStatus;
+}
 
 @end
 
@@ -16,6 +18,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    pendingHideStatus = NO;
     
     // network permission
     /*
@@ -40,6 +43,17 @@
     self.sliderIOView.layer.borderColor = [UIColor whiteColor].CGColor;
     [self.view addSubview:self.airIOView];
     [self.view addSubview:self.sliderIOView];
+    
+    self.connectStatusView = [[UILabel alloc] initWithFrame:CGRectMake(screenWidth - 200.0, screenHeight * 0.1, 200.0, 50.0)];
+    self.connectStatusView.userInteractionEnabled = false;
+    self.connectStatusView.text = @"Not connected";
+    self.connectStatusView.textAlignment = NSTextAlignmentCenter;
+    self.connectStatusView.textColor = [UIColor whiteColor];
+    self.connectStatusView.numberOfLines = 1;
+    self.connectStatusView.backgroundColor = [UIColor blackColor];
+    self.connectStatusView.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.connectStatusView.layer.borderWidth = 1.0;
+    [self.view addSubview:self.connectStatusView];
     
     self.ledBackground = [CAGradientLayer layer];
     self.ledBackground.frame = CGRectMake(0, 0, screenWidth, sliderHeight);
@@ -162,6 +176,27 @@
     }
     NSData* io = [NSData dataWithBytes:&buf length:sizeof(buf)];
     [server updateIO:io];
+}
+
+-(void)hideStatus {
+    pendingHideStatus = NO;
+    [UIView animateWithDuration:0.5 animations:^{
+        self.connectStatusView.frame = CGRectMake(self->screenWidth, self->screenHeight * 0.1, 200.0, 50.0);
+    }];
+}
+-(void)connected {
+    self.connectStatusView.text = @"Connected";
+    [self performSelector:@selector(hideStatus) withObject:nil afterDelay:3];
+    pendingHideStatus = YES;
+}
+-(void)disconnected {
+    if (pendingHideStatus) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideStatus) object:nil];
+    }
+    self.connectStatusView.text = @"Not connected";
+    [UIView animateWithDuration:0.3 animations:^{
+        self.connectStatusView.frame = CGRectMake(self->screenWidth - 200.0, self->screenHeight * 0.1, 200.0, 50.0);
+    }];
 }
 
 @end

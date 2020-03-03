@@ -23,10 +23,13 @@
 }
 @property UIView *airIOView;
 @property UIView *sliderIOView;
+@property UILabel *connectStatusView;
 @property CAGradientLayer *ledBackground;
 
 -(void)updateLed:(NSData*)rgbData;
 -(void)updateTouches:(UIEvent *)event;
+-(void)connected;
+-(void)disconnected;
 
 @end
 

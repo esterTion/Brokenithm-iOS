@@ -38,6 +38,7 @@
     NSData *initResp = [initResponse dataUsingEncoding:NSASCIIStringEncoding];
     [newSocket writeData:initResp withTimeout:-1 tag:0];
     [newSocket readDataToLength:1 withTimeout:5 tag:0];
+    [self.parentVc connected];
 }
 - (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag {}
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag {
@@ -72,6 +73,7 @@
         {
             [connectedSockets removeObject:sock];
         }
+        [self.parentVc disconnected];
     }
 }
 
