@@ -26,6 +26,40 @@ static uint8_t aime_io_felica_id[8];
 static bool aime_io_aime_id_present;
 static bool aime_io_felica_id_present;
 
+struct IPCMemoryInfo
+{
+    uint8_t airIoStatus[6];
+    uint8_t sliderIoStatus[32];
+    uint8_t ledRgbData[32 * 3];
+    uint8_t testBtn;
+    uint8_t serviceBtn;
+    uint8_t coinInsertion;
+    uint8_t cardRead;
+};
+typedef struct IPCMemoryInfo IPCMemoryInfo;
+static HANDLE FileMappingHandle;
+IPCMemoryInfo* FileMapping;
+
+void initSharedMemory()
+{
+    if (FileMapping)
+    {
+        return;
+    }
+    if ((FileMappingHandle = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, sizeof(IPCMemoryInfo), "Local\\BROKENITHM_SHARED_BUFFER")) == 0)
+    {
+        return;
+    }
+
+    if ((FileMapping = (IPCMemoryInfo*)MapViewOfFile(FileMappingHandle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(IPCMemoryInfo))) == 0)
+    {
+        return;
+    }
+
+    memset(FileMapping, 0, sizeof(IPCMemoryInfo));
+    SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
+}
+
 static void aime_io_config_read(
         struct aime_io_config *cfg,
         const wchar_t *filename);
@@ -166,6 +200,8 @@ HRESULT aime_io_init(void)
 {
     aime_io_config_read(&aime_io_cfg, L".\\segatools.ini");
 
+    initSharedMemory();
+
     return S_OK;
 }
 
@@ -189,7 +225,12 @@ HRESULT aime_io_nfc_poll(uint8_t unit_no)
 
     /* Don't do anything more if the scan key is not held */
 
-    sense = GetAsyncKeyState(aime_io_cfg.vk_scan) & 0x8000;
+    if (FileMapping && FileMapping->cardRead) {
+        sense = true;
+        FileMapping->cardRead = 0;
+    } else {
+        sense = GetAsyncKeyState(aime_io_cfg.vk_scan) & 0x8000;
+    }
 
     if (!sense) {
         return S_OK;

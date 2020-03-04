@@ -20,6 +20,10 @@ struct IPCMemoryInfo
     uint8_t airIoStatus[6];
     uint8_t sliderIoStatus[32];
     uint8_t ledRgbData[32 * 3];
+    uint8_t testBtn;
+    uint8_t serviceBtn;
+    uint8_t coinInsertion;
+    uint8_t cardRead;
 };
 typedef struct IPCMemoryInfo IPCMemoryInfo;
 static HANDLE FileMappingHandle;
@@ -60,13 +64,18 @@ void chuni_io_jvs_read_coin_counter(uint16_t *out)
         return;
     }
 
-    if (GetAsyncKeyState(chuni_io_cfg.vk_coin)) {
-        if (!chuni_io_coin) {
-            chuni_io_coin = true;
-            chuni_io_coins++;
-        }
+    if (FileMapping && FileMapping->coinInsertion) {
+        chuni_io_coins++;
+        FileMapping->coinInsertion = 0;
     } else {
-        chuni_io_coin = false;
+        if (GetAsyncKeyState(chuni_io_cfg.vk_coin)) {
+            if (!chuni_io_coin) {
+                chuni_io_coin = true;
+                chuni_io_coins++;
+            }
+        } else {
+            chuni_io_coin = false;
+        }
     }
 
     *out = chuni_io_coins;
@@ -76,11 +85,11 @@ void chuni_io_jvs_poll(uint8_t *opbtn, uint8_t *beams)
 {
     size_t i;
 
-    if (GetAsyncKeyState(chuni_io_cfg.vk_test)) {
+    if ((FileMapping && FileMapping->testBtn) || GetAsyncKeyState(chuni_io_cfg.vk_test)) {
         *opbtn |= 0x01; /* Test */
     }
 
-    if (GetAsyncKeyState(chuni_io_cfg.vk_service)) {
+    if ((FileMapping && FileMapping->serviceBtn) || GetAsyncKeyState(chuni_io_cfg.vk_service)) {
         *opbtn |= 0x02; /* Service */
     }
 
