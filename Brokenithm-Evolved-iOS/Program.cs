@@ -27,7 +27,7 @@ namespace Brokenithm_Evolved_iOS
             Console.WriteLine("=================================================");
             Console.WriteLine("=             Brokenithm-Evolved-iOS:           =");
             Console.WriteLine("=  Brokenithm with full IO and USB connection   =");
-            Console.WriteLine("=                v0.2 by esterTion              =");
+            Console.WriteLine("=                v0.3 by esterTion              =");
             Console.WriteLine("=              Original: thebit.link            =");
             Console.WriteLine("=================================================");
             Console.WriteLine("");
@@ -135,6 +135,7 @@ namespace Brokenithm_Evolved_iOS
                 buf[3] != 'L'
                 )
             {
+                // welcome message
                 Console.WriteLine("received invalid data");
                 conn.Dispose();
                 return;
@@ -156,6 +157,7 @@ namespace Brokenithm_Evolved_iOS
             }
             iDeviceConnectionHandle conn = connection_map[udid];
             iDeviceError status;
+            bool airEnabled = true;
 
             byte[] buf = new byte[256];
             uint read = 0;
@@ -177,21 +179,63 @@ namespace Brokenithm_Evolved_iOS
                 {
                     break;
                 }
-                if (
-                    len >= 3+6+32 &&
+                if (len >= 3+6+32 &&
                     buf[0] == 'I' &&
                     buf[1] == 'N' &&
-                    buf[2] == 'P'
-                    )
+                    buf[2] == 'P')
                 {
-                    sharedBufferAccessor.WriteArray<byte>(0, buf, 3, 6 + 32);
+                    // key input
+                    if (airEnabled)
+                    {
+                        sharedBufferAccessor.WriteArray<byte>(0, buf, 3, 6 + 32);
+                    }
+                    else
+                    {
+                        sharedBufferAccessor.WriteArray<byte>(6, buf, 3 + 6, 32);
+                    }
                     if (len > 3 + 6 + 32)
                     {
                         sharedBufferAccessor.WriteArray<byte>(6+32+96, buf, 3+6+32, len - (3 + 6 + 32));
                     }
-                } else
+                }
+                else if (len >= 4 &&
+                  buf[0] == 'A' &&
+                  buf[1] == 'I' &&
+                  buf[2] == 'R')
                 {
-                    Console.WriteLine("invalid packet");
+                    // air input control
+                    airEnabled = buf[3] != 0;
+                    Console.WriteLine(string.Format("Air input {0}", airEnabled ? "enabled" : "disabled"));
+                }
+                else if (len >= 4 &&
+                    buf[0] == 'F' &&
+                    buf[1] == 'N' &&
+                    buf[2] == 'C')
+                {
+                    // function key
+                    if (buf[3] == (byte)BNI_FUNCTION_KEYS.COIN)
+                    {
+                        sharedBufferAccessor.Write(6 + 32 + 96 + 2, 1);
+                    }
+                    else if (buf[3] == (byte)BNI_FUNCTION_KEYS.CARD)
+                    {
+                        sharedBufferAccessor.Write(6 + 32 + 96 + 3, 1);
+                    }
+                }
+                else
+                {
+                    if (len >= 3)
+                    {
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append((char)buf[0]);
+                        sb.Append((char)buf[1]);
+                        sb.Append((char)buf[2]);
+                        Console.WriteLine(string.Format("unknown packet: {0}", sb.ToString()));
+                    }
+                    else
+                    {
+                        Console.WriteLine("unknown packet");
+                    }
                 }
             }
             conn.Dispose();
@@ -205,6 +249,10 @@ namespace Brokenithm_Evolved_iOS
             }
         }
 
+        enum BNI_FUNCTION_KEYS {
+            COIN = 1,
+            CARD
+        };
 
         private static byte[] prevLedRgb = new byte[32 * 3];
         private static int skipCount = 0;
