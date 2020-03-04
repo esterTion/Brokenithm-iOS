@@ -287,25 +287,25 @@
             } else {
                 float pointPos = pointX / sliderIOWidth;
                 int idx = pointPos;
-                idx = MIN(idx, 15);
+                if (idx > 15) idx = 15;
                 int setIdx = idx*2;
                 if (buf.slider[ setIdx ] != 0) {
                     setIdx++;
                 }
                 buf.slider[ setIdx ] = 0x80;
-                if (idx > 0 && (pointPos - idx) * 4 < 1) {
+                if (idx > 0) { if ((pointPos - idx) * 4 < 1) {
                     setIdx = (idx - 1) * 2;
                     if (buf.slider[ setIdx ] != 0) {
                         setIdx++;
                     }
                     buf.slider[ setIdx ] = 0x80;
-                } else if (idx < 31 && (pointPos - idx) * 4 > 3) {
+                } } else if (idx < 31) { if ((pointPos - idx) * 4 > 3) {
                     setIdx = (idx + 1) * 2;
                     if (buf.slider[ setIdx ] != 0) {
                         setIdx++;
                     }
                     buf.slider[ setIdx ] = 0x80;
-                }
+                } }
             }
         }
     }
