@@ -286,6 +286,7 @@
             } else {
                 float pointPos = pointX / sliderIOWidth;
                 int idx = pointPos;
+                idx = MAX(idx, 15);
                 int setIdx = idx*2;
                 if (buf.slider[ setIdx ] != 0) {
                     setIdx++;
