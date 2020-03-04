@@ -30,6 +30,7 @@
     }
      */
     
+    // io view
     CGRect screenSize = [UIScreen mainScreen].bounds;
     screenWidth = screenSize.size.width;
     screenHeight = screenSize.size.height;
@@ -44,22 +45,26 @@
     [self.view addSubview:self.airIOView];
     [self.view addSubview:self.sliderIOView];
     
-    self.connectStatusView = [[UILabel alloc] initWithFrame:CGRectMake(screenWidth - 200.0, screenHeight * 0.1, 200.0, 50.0)];
-    self.connectStatusView.userInteractionEnabled = false;
-    self.connectStatusView.text = @"Not connected";
-    self.connectStatusView.textAlignment = NSTextAlignmentCenter;
-    self.connectStatusView.textColor = [UIColor whiteColor];
-    self.connectStatusView.numberOfLines = 1;
-    self.connectStatusView.backgroundColor = [UIColor blackColor];
-    self.connectStatusView.layer.borderColor = [UIColor whiteColor].CGColor;
-    self.connectStatusView.layer.borderWidth = 1.0;
-    [self.view addSubview:self.connectStatusView];
+    // connect status view
+    connectStatusView = [[UILabel alloc] initWithFrame:CGRectMake(screenWidth - 200.0, screenHeight * 0.1, 200.0, 50.0)];
+    connectStatusView.userInteractionEnabled = false;
+    connectStatusView.text = @"Not connected";
+    connectStatusView.textAlignment = NSTextAlignmentCenter;
+    connectStatusView.textColor = [UIColor whiteColor];
+    connectStatusView.numberOfLines = 1;
+    connectStatusView.backgroundColor = [UIColor blackColor];
+    connectStatusView.layer.borderColor = [UIColor whiteColor].CGColor;
+    connectStatusView.layer.borderWidth = 1.0;
+    [self.view addSubview:connectStatusView];
     
-    self.ledBackground = [CAGradientLayer layer];
-    self.ledBackground.frame = CGRectMake(0, 0, screenWidth, sliderHeight);
-    [self.sliderIOView.layer addSublayer:self.ledBackground];
-    self.ledBackground.startPoint = CGPointMake(1,0);
-    self.ledBackground.endPoint = CGPointMake(0,0);
+    // function button view
+    
+    // led gradient layer
+    ledBackground = [CAGradientLayer layer];
+    ledBackground.frame = CGRectMake(0, 0, screenWidth, sliderHeight);
+    [self.sliderIOView.layer addSublayer:ledBackground];
+    ledBackground.startPoint = CGPointMake(1,0);
+    ledBackground.endPoint = CGPointMake(0,0);
     {
         float pointOffset = 0;
         float gapSmall = 1.0/16/8, gapBig = 1.0/16*6/8;
@@ -73,7 +78,7 @@
             pointOffset += gapSmall;
         }
         locations[48] = @1;
-        self.ledBackground.locations = locations;
+        ledBackground.locations = locations;
     }
     
     struct CGColor *gridBorderColor = [UIColor colorWithWhite:1.0 alpha:0.2].CGColor;
@@ -122,8 +127,8 @@
         off += (i+1)&1;
         colorArr[off] = (__bridge id)color.CGColor;
     }
-    self.ledBackground.colors = colorArr;
-    [self.ledBackground setNeedsDisplay];
+    ledBackground.colors = colorArr;
+    [ledBackground setNeedsDisplay];
 }
 
 -(BOOL)prefersStatusBarHidden { return kCFCoreFoundationVersionNumber < 1443.00; }
@@ -181,11 +186,11 @@
 -(void)hideStatus {
     pendingHideStatus = NO;
     [UIView animateWithDuration:0.5 animations:^{
-        self.connectStatusView.frame = CGRectMake(self->screenWidth, self->screenHeight * 0.1, 200.0, 50.0);
+        self->connectStatusView.frame = CGRectMake(self->screenWidth, self->screenHeight * 0.1, 200.0, 50.0);
     }];
 }
 -(void)connected {
-    self.connectStatusView.text = @"Connected";
+    connectStatusView.text = @"Connected";
     [self performSelector:@selector(hideStatus) withObject:nil afterDelay:3];
     pendingHideStatus = YES;
 }
@@ -193,9 +198,9 @@
     if (pendingHideStatus) {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideStatus) object:nil];
     }
-    self.connectStatusView.text = @"Not connected";
+    connectStatusView.text = @"Not connected";
     [UIView animateWithDuration:0.3 animations:^{
-        self.connectStatusView.frame = CGRectMake(self->screenWidth - 200.0, self->screenHeight * 0.1, 200.0, 50.0);
+        connectStatusView.frame = CGRectMake(self->screenWidth - 200.0, self->screenHeight * 0.1, 200.0, 50.0);
     }];
 }
 

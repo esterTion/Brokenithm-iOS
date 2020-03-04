@@ -20,11 +20,11 @@
     float screenWidth;
     float screenHeight;
     SocketDelegate *server;
+    UILabel *connectStatusView;
+    CAGradientLayer *ledBackground;
 }
 @property UIView *airIOView;
 @property UIView *sliderIOView;
-@property UILabel *connectStatusView;
-@property CAGradientLayer *ledBackground;
 
 -(void)updateLed:(NSData*)rgbData;
 -(void)updateTouches:(UIEvent *)event;
