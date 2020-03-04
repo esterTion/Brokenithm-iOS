@@ -256,7 +256,7 @@
             if (funcViewOn) {
                 CGPoint funcPoint = [touch locationInView:functionBtnView];
                 if (funcPoint.x > 0 && funcPoint.x < 200 &&
-                    funcPoint.y > 0 && funcPoint.y < 240) {
+                    funcPoint.y > 0 && funcPoint.y < 300) {
                     if (funcPoint.y < 60) {
                         buf.testBtn = 1;
                     } else if (funcPoint.y < 120) {
@@ -267,7 +267,7 @@
                             NSData *btnPressData = [NSData dataWithBytes:btnPress length:sizeof(btnPress)];
                             [server BroadcastData:btnPressData];
                         }
-                    } else {
+                    } else if (funcPoint.y < 240) {
                         if (phase == UITouchPhaseBegan) {
                             uint8_t btnPress[] = {4, 'F', 'N', 'C', BNI_FUNCTION_CARD};
                             NSData *btnPressData = [NSData dataWithBytes:btnPress length:sizeof(btnPress)];
