@@ -53,7 +53,8 @@
     // connect status view
     connectStatusView = [[UILabel alloc] initWithFrame:CGRectMake(screenWidth - 200.0, screenHeight * 0.1, 200.0, 50.0)];
     connectStatusView.userInteractionEnabled = false;
-    connectStatusView.text = @"Not connected";
+    connectStatusView.text = [[NSBundle mainBundle] localizedStringForKey:@"Not connected" value:@"" table:nil]
+    ;
     connectStatusView.textAlignment = NSTextAlignmentCenter;
     connectStatusView.textColor = [UIColor whiteColor];
     connectStatusView.numberOfLines = 1;
@@ -90,8 +91,8 @@
             NSArray<NSArray<NSString*>*> *functions = @[
                 @[@"test", @"TEST"],
                 @[@"service", @"SERVICE"],
-                @[@"coin", @"Insert Coin"],
-                @[@"card", @"Read Card"]
+                @[@"coin", [[NSBundle mainBundle] localizedStringForKey:@"Insert Coin" value:@"" table:nil]],
+                @[@"card", [[NSBundle mainBundle] localizedStringForKey:@"Read Card" value:@"" table:nil]]
             ];
             float offset = 0;
             for (NSArray<NSString*> *item in functions) {
@@ -112,7 +113,7 @@
             enableAirLabel.textAlignment = NSTextAlignmentRight;
             enableAirLabel.textColor = [UIColor whiteColor];
             enableAirLabel.numberOfLines = 1;
-            enableAirLabel.text = @"Enable Air Input";
+            enableAirLabel.text = [[NSBundle mainBundle] localizedStringForKey:@"Enable Air Input" value:@"" table:nil];
             [enableAir addSubview:enableAirLabel];
             enableAirToggle = [[UISwitch alloc] initWithFrame:CGRectMake(135, 13, 50, 27)];
             BOOL pref = [NSUserDefaults.standardUserDefaults boolForKey:@"enableAir"];
@@ -319,7 +320,7 @@
     }];
 }
 -(void)connected {
-    connectStatusView.text = @"Connected";
+    connectStatusView.text = [[NSBundle mainBundle] localizedStringForKey:@"Connected" value:@"" table:nil];
     [self performSelector:@selector(hideStatus) withObject:nil afterDelay:3];
     pendingHideStatus = YES;
     
@@ -331,10 +332,11 @@
     if (pendingHideStatus) {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hideStatus) object:nil];
     }
-    connectStatusView.text = @"Not connected";
+    connectStatusView.text = [[NSBundle mainBundle] localizedStringForKey:@"Not connected" value:@"" table:nil];
     [UIView animateWithDuration:0.3 animations:^{
         self->connectStatusView.frame = CGRectMake(self->screenWidth - 200.0, self->screenHeight * 0.1, 200.0, 50.0);
     }];
+    [self openFunc];
 }
 
 @end
