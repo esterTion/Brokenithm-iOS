@@ -77,9 +77,9 @@
     }
 }
 
-- (void)updateIO:(NSData*)io {
+- (void)BroadcastData:(NSData*)data {
     for (GCDAsyncSocket* sock in connectedSockets) {
-        [sock writeData:io withTimeout:-1 tag:0];
+        [sock writeData:data withTimeout:-1 tag:0];
     }
 }
 

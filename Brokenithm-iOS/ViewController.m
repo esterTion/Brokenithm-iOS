@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "FunctionButton.h"
 
 @interface ViewController () {
     BOOL pendingHideStatus;
@@ -19,6 +20,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     pendingHideStatus = NO;
+    [NSUserDefaults.standardUserDefaults registerDefaults:@{@"enableAir":@YES}];
+    funcViewOn = YES;
+    openCloseEventOnce = NO;
     
     // network permission
     /*
@@ -34,16 +38,17 @@
     CGRect screenSize = [UIScreen mainScreen].bounds;
     screenWidth = screenSize.size.width;
     screenHeight = screenSize.size.height;
-    float offsetY = 0, sliderHeight = screenHeight*0.6;
+    float offsetY = 0, sliderHeight = screenHeight;
     self.airIOView = [[UIView alloc] initWithFrame:CGRectMake(0, offsetY, screenWidth, screenHeight*0.4)];
     offsetY += screenHeight*0.4;
-    self.sliderIOView = [[UIView alloc] initWithFrame:CGRectMake(0, offsetY, screenWidth, sliderHeight)];
+    self.sliderIOView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, screenWidth, sliderHeight)];
+    self.airIOView.backgroundColor = [UIColor blackColor];
     self.airIOView.layer.borderWidth = 1.0f;
     self.airIOView.layer.borderColor = [UIColor whiteColor].CGColor;
     self.sliderIOView.layer.borderWidth = 1.0f;
     self.sliderIOView.layer.borderColor = [UIColor whiteColor].CGColor;
-    [self.view addSubview:self.airIOView];
     [self.view addSubview:self.sliderIOView];
+    [self.view addSubview:self.airIOView];
     
     // connect status view
     connectStatusView = [[UILabel alloc] initWithFrame:CGRectMake(screenWidth - 200.0, screenHeight * 0.1, 200.0, 50.0)];
@@ -58,6 +63,65 @@
     [self.view addSubview:connectStatusView];
     
     // function button view
+    {
+        functionBtnView = [[UIView alloc] initWithFrame:CGRectMake(0, screenHeight*0.1, 250, 300)];
+        [self.view addSubview:functionBtnView];
+        // open/close btn
+        UIView *openCloseBtnBorder;
+        openCloseBtnBorder = [[UIView alloc] initWithFrame:CGRectMake(195, 0, 55, 50)];
+        openCloseBtnBorder.backgroundColor = [UIColor blackColor];
+        openCloseBtnBorder.layer.borderColor = [UIColor whiteColor].CGColor;
+        openCloseBtnBorder.layer.borderWidth = 1.0;
+        openCloseBtnBorder.layer.cornerRadius = 5;
+        [functionBtnView addSubview:openCloseBtnBorder];
+        openCloseBtn = [[UILabel alloc] initWithFrame:CGRectMake(5, 0, 50, 50)];
+        openCloseBtn.textColor = [UIColor whiteColor];
+        openCloseBtn.textAlignment = NSTextAlignmentCenter;
+        openCloseBtn.text = @"◀";
+        openCloseBtn.font = [UIFont systemFontOfSize:30];
+        UITapGestureRecognizer *openCloseTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeFunc)];
+        UILongPressGestureRecognizer *openCloseHold = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(openOrCloseFunc)];
+        openCloseHold.minimumPressDuration = 2;
+        [openCloseBtnBorder addGestureRecognizer:openCloseTap];
+        [openCloseBtnBorder addGestureRecognizer:openCloseHold];
+        [openCloseBtnBorder addSubview:openCloseBtn];
+        // functions
+        {
+            NSArray<NSArray<NSString*>*> *functions = @[
+                @[@"test", @"TEST"],
+                @[@"service", @"SERVICE"],
+                @[@"coin", @"Insert Coin"],
+                @[@"card", @"Read Card"]
+            ];
+            float offset = 0;
+            for (NSArray<NSString*> *item in functions) {
+                FunctionButton *btn = [[FunctionButton alloc] initAtY:offset];
+                btn.name = item[0];
+                btn.text = item[1];
+                [functionBtnView addSubview:btn];
+                offset += 60;
+            }
+            UIView *enableAir;
+            UILabel *enableAirLabel;
+            enableAir = [[UIView alloc] initWithFrame:CGRectMake(0, 240, 200, 60)];
+            enableAir.backgroundColor = [UIColor blackColor];
+            enableAir.layer.borderColor = [UIColor whiteColor].CGColor;
+            enableAir.layer.borderWidth = 1.0;
+            [functionBtnView addSubview:enableAir];
+            enableAirLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 130, 60)];
+            enableAirLabel.textAlignment = NSTextAlignmentRight;
+            enableAirLabel.textColor = [UIColor whiteColor];
+            enableAirLabel.numberOfLines = 1;
+            enableAirLabel.text = @"Enable Air Input";
+            [enableAir addSubview:enableAirLabel];
+            enableAirToggle = [[UISwitch alloc] initWithFrame:CGRectMake(135, 13, 50, 27)];
+            BOOL pref = [NSUserDefaults.standardUserDefaults boolForKey:@"enableAir"];
+            [enableAirToggle setOn:pref animated:NO];
+            [enableAirToggle addTarget:self action:@selector(enableAirChanged) forControlEvents:UIControlEventValueChanged];
+            [self updateAirEnabled:pref];
+            [enableAir addSubview:enableAirToggle];
+        }
+    }
     
     // led gradient layer
     ledBackground = [CAGradientLayer layer];
@@ -103,13 +167,6 @@
     server = [[SocketDelegate alloc] init];
     server.parentVc = self;
     NSLog(@"server created");
-    
-    dispatch_async(dispatch_get_main_queue(), ^(){
-        char ledDataChar[32*3] = {0,254,254,254,254,254,0,254,254,0,0,0,254,254,254,254,254,254,254,254,254,0,0,0,10,10,10,10,10,10,10,10,10,0,0,0,0,254,128,0,254,128,0,254,128,0,254,128,0,254,128,0,254,128,0,254,128,0,0,0,0,0,254,0,0,254,0,0,254,0,0,254,0,0,254,0,0,0,0,0,254,0,0,254,0,0,254,0,0,254,0,0,254,0,0,0};
-        NSData *ledData = [NSData dataWithBytes:ledDataChar length:32*3];
-        [self updateLed:ledData];
-        NSLog(@"displayed demo led");
-    });
 }
 
 -(void)updateLed:(NSData*)rgbData {
@@ -130,6 +187,47 @@
     ledBackground.colors = colorArr;
     [ledBackground setNeedsDisplay];
 }
+-(void)enableAirChanged{
+    BOOL pref = enableAirToggle.on;
+    [NSUserDefaults.standardUserDefaults setBool:pref forKey:@"enableAir"];
+    [self updateAirEnabled:pref];
+    
+    uint8_t airConf[] = {4, 'A', 'I', 'R', pref};
+    NSData *airConfData = [NSData dataWithBytes:airConf length:sizeof(airConf)];
+    [server BroadcastData:airConfData];
+}
+-(void)updateAirEnabled:(BOOL)enable {
+    self.airIOView.hidden = !enable;
+    airEnabled = enable;
+}
+
+-(void)openOrCloseFunc {
+    if (funcViewOn) {
+        [self closeFunc];
+    } else {
+        [self openFunc];
+    }
+}
+-(void)closeFunc {
+    if (!openCloseEventOnce && funcViewOn) {
+        funcViewOn = NO;
+        openCloseEventOnce = YES;
+        [UIView animateWithDuration:0.3 animations:^{
+            self->functionBtnView.frame = CGRectMake(-200, self->screenHeight*0.1, 250, 300);
+        }];
+        openCloseBtn.text = @"▶";
+    }
+}
+-(void)openFunc {
+    if (!openCloseEventOnce && !funcViewOn) {
+        funcViewOn = YES;
+        openCloseEventOnce = YES;
+        [UIView animateWithDuration:0.3 animations:^{
+            self->functionBtnView.frame = CGRectMake(0, self->screenHeight*0.1, 250, 300);
+        }];
+        openCloseBtn.text = @"◀";
+    }
+}
 
 -(BOOL)prefersStatusBarHidden { return kCFCoreFoundationVersionNumber < 1443.00; }
 -(UIRectEdge)preferredScreenEdgesDeferringSystemGestures { return UIRectEdgeAll; }
@@ -138,6 +236,12 @@
 -(UIEditingInteractionConfiguration)editingInteractionConfiguration { return UIEditingInteractionConfigurationNone; }
 
 -(void)updateTouches:(UIEvent *)event {
+    if (openCloseEventOnce) {
+        if (event.allTouches.count == 1 && [event.allTouches anyObject].phase == UITouchPhaseEnded) {
+            openCloseEventOnce = NO;
+        }
+        return;
+    }
     float airHeight = screenHeight * 0.4;
     float airIOHeight = airHeight / 6;
     float sliderIOWidth = screenWidth / 16;
@@ -149,10 +253,34 @@
     for (UITouch *touch in event.allTouches) {
         UITouchPhase phase = touch.phase;
         if (phase == UITouchPhaseBegan || phase == UITouchPhaseMoved || phase == UITouchPhaseStationary) {
-            CGPoint point = [touch locationInView:self.view];
+            if (funcViewOn) {
+                CGPoint funcPoint = [touch locationInView:functionBtnView];
+                if (funcPoint.x > 0 && funcPoint.x < 200 &&
+                    funcPoint.y > 0 && funcPoint.y < 240) {
+                    if (funcPoint.y < 60) {
+                        buf.testBtn = 1;
+                    } else if (funcPoint.y < 120) {
+                        buf.serviceBtn = 1;
+                    } else if (funcPoint.y < 180) {
+                        if (phase == UITouchPhaseBegan) {
+                            uint8_t btnPress[] = {4, 'F', 'N', 'C', BNI_FUNCTION_COIN};
+                            NSData *btnPressData = [NSData dataWithBytes:btnPress length:sizeof(btnPress)];
+                            [server BroadcastData:btnPressData];
+                        }
+                    } else {
+                        if (phase == UITouchPhaseBegan) {
+                            uint8_t btnPress[] = {4, 'F', 'N', 'C', BNI_FUNCTION_CARD};
+                            NSData *btnPressData = [NSData dataWithBytes:btnPress length:sizeof(btnPress)];
+                            [server BroadcastData:btnPressData];
+                        }
+                    }
+                    continue;
+                }
+            }
+            CGPoint point = [touch locationInView:nil];
             float pointX = screenWidth - point.x, pointY = point.y;
-            if (pointY < airHeight) {
-                int idx = point.y / airIOHeight;
+            if (airEnabled && pointY < airHeight) {
+                int idx = pointY / airIOHeight;
                 uint8_t airIdx[] = {4,5,2,3,0,1};
                 buf.air[airIdx[idx]] = 1;
             } else {
@@ -180,7 +308,7 @@
         }
     }
     NSData* io = [NSData dataWithBytes:&buf length:sizeof(buf)];
-    [server updateIO:io];
+    [server BroadcastData:io];
 }
 
 -(void)hideStatus {
@@ -193,6 +321,10 @@
     connectStatusView.text = @"Connected";
     [self performSelector:@selector(hideStatus) withObject:nil afterDelay:3];
     pendingHideStatus = YES;
+    
+    uint8_t airConf[] = {4, 'A', 'I', 'R', airEnabled};
+    NSData *airConfData = [NSData dataWithBytes:airConf length:sizeof(airConf)];
+    [server BroadcastData:airConfData];
 }
 -(void)disconnected {
     if (pendingHideStatus) {
@@ -200,7 +332,7 @@
     }
     connectStatusView.text = @"Not connected";
     [UIView animateWithDuration:0.3 animations:^{
-        connectStatusView.frame = CGRectMake(self->screenWidth - 200.0, self->screenHeight * 0.1, 200.0, 50.0);
+        self->connectStatusView.frame = CGRectMake(self->screenWidth - 200.0, self->screenHeight * 0.1, 200.0, 50.0);
     }];
 }
 

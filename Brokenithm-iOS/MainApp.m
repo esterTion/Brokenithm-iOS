@@ -15,10 +15,10 @@
 @implementation MainApp
 
 -(void)sendEvent:(UIEvent *)event {
+    [super sendEvent:event];
     if (event.type == UIEventTypeTouches) {
         [(ViewController*)self.keyWindow.rootViewController updateTouches:event];
     }
-    [super sendEvent:event];
 }
 
 @end

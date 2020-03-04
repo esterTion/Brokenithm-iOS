@@ -21,7 +21,7 @@
 }
 @property ViewController *parentVc;
 
-- (void)updateIO:(NSData*)io;
+- (void)BroadcastData:(NSData*)data;
 
 @end
 

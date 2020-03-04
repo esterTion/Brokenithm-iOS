@@ -22,6 +22,13 @@
     SocketDelegate *server;
     UILabel *connectStatusView;
     CAGradientLayer *ledBackground;
+    
+    BOOL openCloseEventOnce;
+    BOOL funcViewOn;
+    UIView *functionBtnView;
+    UILabel *openCloseBtn;
+    UISwitch *enableAirToggle;
+    BOOL airEnabled;
 }
 @property UIView *airIOView;
 @property UIView *sliderIOView;
@@ -38,4 +45,11 @@ struct ioBuf {
     char head[3];
     uint8_t air[6];
     uint8_t slider[32];
+    uint8_t testBtn;
+    uint8_t serviceBtn;
+};
+
+enum {
+    BNI_FUNCTION_COIN = 1,
+    BNI_FUNCTION_CARD
 };
