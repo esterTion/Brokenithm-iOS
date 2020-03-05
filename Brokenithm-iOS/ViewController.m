@@ -82,7 +82,7 @@
         openCloseBtn.font = [UIFont systemFontOfSize:30];
         UITapGestureRecognizer *openCloseTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeFunc)];
         UILongPressGestureRecognizer *openCloseHold = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(openOrCloseFunc)];
-        openCloseHold.minimumPressDuration = 2;
+        openCloseHold.minimumPressDuration = 1;
         [openCloseBtnBorder addGestureRecognizer:openCloseTap];
         [openCloseBtnBorder addGestureRecognizer:openCloseHold];
         [openCloseBtnBorder addSubview:openCloseBtn];
