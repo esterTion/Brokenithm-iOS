@@ -130,6 +130,7 @@
     [self.sliderIOView.layer addSublayer:ledBackground];
     ledBackground.startPoint = CGPointMake(1,0);
     ledBackground.endPoint = CGPointMake(0,0);
+    ledBackground.actions = [NSDictionary dictionaryWithObject:[NSNull null] forKey:@"colors"];
     {
         float pointOffset = 0;
         float gapSmall = 1.0/16/8, gapBig = 1.0/16*6/8;
