@@ -72,8 +72,10 @@
         @synchronized(connectedSockets)
         {
             [connectedSockets removeObject:sock];
+            if (connectedSockets.count == 0) {
+                [self.parentVc disconnected];
+            }
         }
-        [self.parentVc disconnected];
     }
 }
 
@@ -84,6 +86,7 @@
 }
 
 - (void)becomeInactive {
+    [self.parentVc becomeInactive];
     server.IPv4Enabled = NO;
     server.IPv6Enabled = NO;
     for (GCDAsyncSocket* sock in connectedSockets) {

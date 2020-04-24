@@ -29,6 +29,8 @@
     UILabel *openCloseBtn;
     UISwitch *enableAirToggle;
     BOOL airEnabled;
+    UISwitch *autoPopToggle;
+    BOOL autoPopMenu;
 }
 @property UIView *airIOView;
 @property UIView *sliderIOView;
@@ -37,6 +39,7 @@
 -(void)updateTouches:(UIEvent *)event;
 -(void)connected;
 -(void)disconnected;
+-(void)becomeInactive;
 
 @end
 

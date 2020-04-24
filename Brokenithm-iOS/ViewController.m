@@ -15,12 +15,14 @@
 
 @end
 
+#define FUNCTION_MENU_HEIGHT 360.0f
+
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     pendingHideStatus = NO;
-    [NSUserDefaults.standardUserDefaults registerDefaults:@{@"enableAir":@YES}];
+    [NSUserDefaults.standardUserDefaults registerDefaults:@{@"enableAir":@YES, @"autoPopMenu":@YES}];
     funcViewOn = YES;
     openCloseEventOnce = NO;
     
@@ -65,7 +67,7 @@
     
     // function button view
     {
-        functionBtnView = [[UIView alloc] initWithFrame:CGRectMake(0, screenHeight*0.1, 250, 300)];
+        functionBtnView = [[UIView alloc] initWithFrame:CGRectMake(0, screenHeight*0.1, 250, FUNCTION_MENU_HEIGHT)];
         [self.view addSubview:functionBtnView];
         // open/close btn
         UIView *openCloseBtnBorder;
@@ -121,6 +123,26 @@
             [enableAirToggle addTarget:self action:@selector(enableAirChanged) forControlEvents:UIControlEventValueChanged];
             [self updateAirEnabled:pref];
             [enableAir addSubview:enableAirToggle];
+            
+            UIView *autoPop;
+            UILabel *autoPopLabel;
+            autoPop = [[UIView alloc] initWithFrame:CGRectMake(0, 300, 200, 60)];
+            autoPop.backgroundColor = [UIColor blackColor];
+            autoPop.layer.borderColor = [UIColor whiteColor].CGColor;
+            autoPop.layer.borderWidth = 1.0;
+            [functionBtnView addSubview:autoPop];
+            autoPopLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 130, 60)];
+            autoPopLabel.textAlignment = NSTextAlignmentRight;
+            autoPopLabel.textColor = [UIColor whiteColor];
+            autoPopLabel.numberOfLines = 1;
+            autoPopLabel.text = [[NSBundle mainBundle] localizedStringForKey:@"Auto Pop Menu" value:@"" table:nil];
+            [autoPop addSubview:autoPopLabel];
+            autoPopToggle = [[UISwitch alloc] initWithFrame:CGRectMake(135, 13, 50, 27)];
+            pref = [NSUserDefaults.standardUserDefaults boolForKey:@"autoPopMenu"];
+            [autoPopToggle setOn:pref animated:NO];
+            [autoPopToggle addTarget:self action:@selector(autoPopChanged) forControlEvents:UIControlEventValueChanged];
+            autoPopMenu = pref;
+            [autoPop addSubview:autoPopToggle];
         }
     }
     
@@ -203,6 +225,12 @@
     airEnabled = enable;
 }
 
+-(void)autoPopChanged{
+    BOOL pref = autoPopToggle.on;
+    [NSUserDefaults.standardUserDefaults setBool:pref forKey:@"autoPopMenu"];
+    autoPopMenu = pref;
+}
+
 -(void)openOrCloseFunc {
     if (funcViewOn) {
         [self closeFunc];
@@ -215,9 +243,11 @@
         funcViewOn = NO;
         openCloseEventOnce = YES;
         [UIView animateWithDuration:0.3 animations:^{
-            self->functionBtnView.frame = CGRectMake(-200, self->screenHeight*0.1, 250, 300);
+            self->functionBtnView.frame = CGRectMake(-200, self->screenHeight*0.1, 250, FUNCTION_MENU_HEIGHT);
         }];
         openCloseBtn.text = @"▶";
+        struct ioBuf buf = {0};
+        [self sendIoBuf:&buf];
     }
 }
 -(void)openFunc {
@@ -225,9 +255,11 @@
         funcViewOn = YES;
         openCloseEventOnce = YES;
         [UIView animateWithDuration:0.3 animations:^{
-            self->functionBtnView.frame = CGRectMake(0, self->screenHeight*0.1, 250, 300);
+            self->functionBtnView.frame = CGRectMake(0, self->screenHeight*0.1, 250, FUNCTION_MENU_HEIGHT);
         }];
         openCloseBtn.text = @"◀";
+        struct ioBuf buf = {0};
+        [self sendIoBuf:&buf];
     }
 }
 
@@ -237,6 +269,14 @@
 -(UIStatusBarStyle) preferredStatusBarStyle { return UIStatusBarStyleLightContent; }
 -(UIEditingInteractionConfiguration)editingInteractionConfiguration { return UIEditingInteractionConfigurationNone; }
 
+-(void)sendIoBuf:(struct ioBuf*)buf {
+    buf->len = sizeof(*buf) - 1;
+    buf->head[0] = 'I';
+    buf->head[1] = 'N';
+    buf->head[2] = 'P';
+    NSData* io = [NSData dataWithBytes:buf length:sizeof(*buf)];
+    [server BroadcastData:io];
+}
 -(void)updateTouches:(UIEvent *)event {
     if (openCloseEventOnce) {
         if (event.allTouches.count == 1 && [event.allTouches anyObject].phase == UITouchPhaseEnded) {
@@ -248,17 +288,13 @@
     float airIOHeight = airHeight / 6;
     float sliderIOWidth = screenWidth / 16;
     struct ioBuf buf = {0};
-    buf.len = sizeof(buf) - 1;
-    buf.head[0] = 'I';
-    buf.head[1] = 'N';
-    buf.head[2] = 'P';
     for (UITouch *touch in event.allTouches) {
         UITouchPhase phase = touch.phase;
         if (phase == UITouchPhaseBegan || phase == UITouchPhaseMoved || phase == UITouchPhaseStationary) {
             if (funcViewOn) {
                 CGPoint funcPoint = [touch locationInView:functionBtnView];
                 if (funcPoint.x > 0 && funcPoint.x < 200 &&
-                    funcPoint.y > 0 && funcPoint.y < 300) {
+                    funcPoint.y > 0 && funcPoint.y < FUNCTION_MENU_HEIGHT) {
                     if (funcPoint.y < 60) {
                         buf.testBtn = 1;
                     } else if (funcPoint.y < 120) {
@@ -310,8 +346,7 @@
             }
         }
     }
-    NSData* io = [NSData dataWithBytes:&buf length:sizeof(buf)];
-    [server BroadcastData:io];
+    [self sendIoBuf:&buf];
 }
 
 -(void)hideStatus {
@@ -337,7 +372,13 @@
     [UIView animateWithDuration:0.3 animations:^{
         self->connectStatusView.frame = CGRectMake(self->screenWidth - 200.0, self->screenHeight * 0.1, 200.0, 50.0);
     }];
-    [self openFunc];
+    if (autoPopMenu) {
+        [self openFunc];
+    }
+}
+-(void)becomeInactive {
+    struct ioBuf buf = {0};
+    [self sendIoBuf:&buf];
 }
 
 @end
