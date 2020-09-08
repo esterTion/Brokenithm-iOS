@@ -22,7 +22,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     pendingHideStatus = NO;
-    [NSUserDefaults.standardUserDefaults registerDefaults:@{@"enableAir":@YES, @"autoPopMenu":@YES}];
+    [NSUserDefaults.standardUserDefaults registerDefaults:@{
+        @"enableAir": @YES,
+        @"autoPopMenu": @YES,
+        @"invertAir": @NO,
+        @"menuDuration": @1.0
+    }];
     funcViewOn = YES;
     openCloseEventOnce = NO;
     
@@ -40,9 +45,8 @@
     CGRect screenSize = [UIScreen mainScreen].bounds;
     screenWidth = screenSize.size.width;
     screenHeight = screenSize.size.height;
-    float offsetY = 0, sliderHeight = screenHeight;
-    self.airIOView = [[UIView alloc] initWithFrame:CGRectMake(0, offsetY, screenWidth, screenHeight*0.4)];
-    offsetY += screenHeight*0.4;
+    float sliderHeight = screenHeight;
+    self.airIOView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, screenWidth, screenHeight*0.4)];
     self.sliderIOView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, screenWidth, sliderHeight)];
     self.airIOView.backgroundColor = [UIColor blackColor];
     self.airIOView.layer.borderWidth = 1.0f;
@@ -83,7 +87,7 @@
         openCloseBtn.text = @"◀";
         openCloseBtn.font = [UIFont systemFontOfSize:30];
         UITapGestureRecognizer *openCloseTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(closeFunc)];
-        UILongPressGestureRecognizer *openCloseHold = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(openOrCloseFunc)];
+        openCloseHold = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(openOrCloseFunc)];
         openCloseHold.minimumPressDuration = 1;
         [openCloseBtnBorder addGestureRecognizer:openCloseTap];
         [openCloseBtnBorder addGestureRecognizer:openCloseHold];
@@ -106,7 +110,7 @@
             }
             UIView *enableAir;
             UILabel *enableAirLabel;
-            enableAir = [[UIView alloc] initWithFrame:CGRectMake(0, 240, 200, 60)];
+            enableAir = [[UIView alloc] initWithFrame:CGRectMake(0, offset, 200, 60)];
             enableAir.backgroundColor = [UIColor blackColor];
             enableAir.layer.borderColor = [UIColor whiteColor].CGColor;
             enableAir.layer.borderWidth = 1.0;
@@ -118,31 +122,20 @@
             enableAirLabel.text = [[NSBundle mainBundle] localizedStringForKey:@"Enable Air Input" value:@"" table:nil];
             [enableAir addSubview:enableAirLabel];
             enableAirToggle = [[UISwitch alloc] initWithFrame:CGRectMake(135, 13, 50, 27)];
-            BOOL pref = [NSUserDefaults.standardUserDefaults boolForKey:@"enableAir"];
-            [enableAirToggle setOn:pref animated:NO];
-            [enableAirToggle addTarget:self action:@selector(enableAirChanged) forControlEvents:UIControlEventValueChanged];
-            [self updateAirEnabled:pref];
             [enableAir addSubview:enableAirToggle];
+            offset += 60;
             
-            UIView *autoPop;
-            UILabel *autoPopLabel;
-            autoPop = [[UIView alloc] initWithFrame:CGRectMake(0, 300, 200, 60)];
-            autoPop.backgroundColor = [UIColor blackColor];
-            autoPop.layer.borderColor = [UIColor whiteColor].CGColor;
-            autoPop.layer.borderWidth = 1.0;
-            [functionBtnView addSubview:autoPop];
-            autoPopLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 130, 60)];
-            autoPopLabel.textAlignment = NSTextAlignmentRight;
-            autoPopLabel.textColor = [UIColor whiteColor];
-            autoPopLabel.numberOfLines = 1;
-            autoPopLabel.text = [[NSBundle mainBundle] localizedStringForKey:@"Auto Pop Menu" value:@"" table:nil];
-            [autoPop addSubview:autoPopLabel];
-            autoPopToggle = [[UISwitch alloc] initWithFrame:CGRectMake(135, 13, 50, 27)];
-            pref = [NSUserDefaults.standardUserDefaults boolForKey:@"autoPopMenu"];
-            [autoPopToggle setOn:pref animated:NO];
-            [autoPopToggle addTarget:self action:@selector(autoPopChanged) forControlEvents:UIControlEventValueChanged];
-            autoPopMenu = pref;
-            [autoPop addSubview:autoPopToggle];
+            FunctionButton *moreBtn = [[FunctionButton alloc] initAtY:offset];
+            offset += 60;
+            moreBtn.name = @"more_setting_button";
+            moreBtn.text = [[NSBundle mainBundle] localizedStringForKey:@"More..." value:@"" table:nil];
+            moreBtn.userInteractionEnabled = YES;
+            UITapGestureRecognizer *moreBtnTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(jumpToSetting)];
+            [moreBtn addGestureRecognizer:moreBtnTap];
+            [functionBtnView addSubview:moreBtn];
+            
+            [self loadPrefs];
+            [enableAirToggle addTarget:self action:@selector(enableAirChanged) forControlEvents:UIControlEventValueChanged];
         }
     }
     
@@ -193,6 +186,24 @@
     NSLog(@"server created");
 }
 
+-(void)loadPrefs {
+    // enable air
+    BOOL pref = [NSUserDefaults.standardUserDefaults boolForKey:@"enableAir"];
+    [enableAirToggle setOn:pref animated:NO];
+    [self updateAirEnabled:pref];
+    
+    // auto pop
+    autoPopMenu = [NSUserDefaults.standardUserDefaults boolForKey:@"autoPopMenu"];
+    
+    // invert air
+    pref = [NSUserDefaults.standardUserDefaults boolForKey:@"invertAir"];
+    [self updateAirInverted:pref];
+    
+    // hold duration
+    menuHoldDuration = [NSUserDefaults.standardUserDefaults valueForKey:@"menuDuration"];
+    openCloseHold.minimumPressDuration = [menuHoldDuration floatValue];
+}
+
 -(void)updateLed:(NSData*)rgbData {
     if (rgbData.length != 32*3) return;
     NSMutableArray *colorArr = [NSMutableArray arrayWithCapacity:33];
@@ -225,10 +236,14 @@
     airEnabled = enable;
 }
 
--(void)autoPopChanged{
-    BOOL pref = autoPopToggle.on;
-    [NSUserDefaults.standardUserDefaults setBool:pref forKey:@"autoPopMenu"];
-    autoPopMenu = pref;
+-(void)updateAirInverted:(BOOL)invert {
+    if (invertAir != invert) {
+        CGRect screenSize = [UIScreen mainScreen].bounds;
+        screenWidth = screenSize.size.width;
+        screenHeight = screenSize.size.height;
+        self.airIOView.frame = CGRectMake(0, invert ? screenHeight * 0.6 : 0, screenWidth, screenHeight * 0.4);
+        invertAir = invert;
+    }
 }
 
 -(void)openOrCloseFunc {
@@ -261,6 +276,9 @@
         struct ioBuf buf = {0};
         [self sendIoBuf:&buf];
     }
+}
+-(void)jumpToSetting {
+    [UIApplication.sharedApplication openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
 }
 
 -(BOOL)prefersStatusBarHidden { return kCFCoreFoundationVersionNumber < 1443.00; }
@@ -317,8 +335,17 @@
             }
             CGPoint point = [touch locationInView:nil];
             float pointX = screenWidth - point.x, pointY = point.y;
-            if (airEnabled && pointY < airHeight) {
-                int idx = pointY / airIOHeight;
+            BOOL inAirRange = airEnabled && (
+                                             (invertAir && pointY > screenHeight - airHeight) ||
+                                             (!invertAir && pointY < airHeight)
+                                            );
+            if (inAirRange) {
+                int idx;
+                if (invertAir) {
+                    idx = (screenHeight - pointY) / airIOHeight;
+                } else {
+                    idx = pointY / airIOHeight;
+                }
                 uint8_t airIdx[] = {4,5,2,3,0,1};
                 buf.air[airIdx[idx]] = 1;
             } else {
@@ -379,6 +406,9 @@
 -(void)becomeInactive {
     struct ioBuf buf = {0};
     [self sendIoBuf:&buf];
+}
+-(void)becomeActive {
+    [self loadPrefs];
 }
 
 @end

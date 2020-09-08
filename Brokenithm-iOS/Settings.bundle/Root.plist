@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>StringsTable</key>
+	<string>Root</string>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Enable Air Input</string>
+			<key>Key</key>
+			<string>enableAir</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Auto Pop Menu</string>
+			<key>Key</key>
+			<string>autoPopMenu</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Invert Air Input Layout</string>
+			<key>Key</key>
+			<string>invertAir</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSTitleValueSpecifier</string>
+			<key>DefaultValue</key>
+			<string></string>
+			<key>Title</key>
+			<string>Hold duration to open side menu</string>
+			<key>Key</key>
+			<string>menuDurationTitle</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSSliderSpecifier</string>
+			<key>Key</key>
+			<string>menuDuration</string>
+			<key>MinimumValue</key>
+			<real>0.5</real>
+			<key>DefaultValue</key>
+			<real>1</real>
+			<key>MaximumValue</key>
+			<real>2</real>
+		</dict>
+	</array>
+</dict>
+</plist>

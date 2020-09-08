@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1961EB742507451600C79BF8 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 1961EB732507451600C79BF8 /* Settings.bundle */; };
 		1968E72624086C2200784829 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1968E72524086C2200784829 /* AppDelegate.m */; };
 		1968E72924086C2200784829 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1968E72824086C2200784829 /* ViewController.m */; };
 		1968E72C24086C2200784829 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1968E72A24086C2200784829 /* Main.storyboard */; };
@@ -21,6 +22,7 @@
 
 /* Begin PBXFileReference section */
 		1277586B240D1432002C27EE /* MainApp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainApp.h; sourceTree = "<group>"; };
+		1961EB732507451600C79BF8 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		1968E72124086C2200784829 /* Brokenithm-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Brokenithm-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1968E72424086C2200784829 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1968E72524086C2200784829 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 				19F40719240CFCFF00D7F506 /* MainApp.m */,
 				1968E72724086C2200784829 /* ViewController.h */,
 				1968E72824086C2200784829 /* ViewController.m */,
+				1961EB732507451600C79BF8 /* Settings.bundle */,
 				1968E72A24086C2200784829 /* Main.storyboard */,
 				1968E72D24086C2B00784829 /* Assets.xcassets */,
 				1968E73224086C2B00784829 /* Info.plist */,
@@ -170,6 +173,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1961EB742507451600C79BF8 /* Settings.bundle in Resources */,
 				1968E72E24086C2B00784829 /* Assets.xcassets in Resources */,
 				19F40723240FE2B800D7F506 /* zh.lproj in Resources */,
 				1968E72C24086C2200784829 /* Main.storyboard in Resources */,
@@ -349,7 +353,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = K9CP5766XY;
 				INFOPLIST_FILE = "Brokenithm-iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -373,7 +377,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = K9CP5766XY;
 				INFOPLIST_FILE = "Brokenithm-iOS/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

@@ -29,8 +29,10 @@
     UILabel *openCloseBtn;
     UISwitch *enableAirToggle;
     BOOL airEnabled;
-    UISwitch *autoPopToggle;
     BOOL autoPopMenu;
+    BOOL invertAir;
+    NSNumber *menuHoldDuration;
+    UILongPressGestureRecognizer *openCloseHold;
 }
 @property UIView *airIOView;
 @property UIView *sliderIOView;
@@ -40,6 +42,7 @@
 -(void)connected;
 -(void)disconnected;
 -(void)becomeInactive;
+-(void)becomeActive;
 
 @end
 

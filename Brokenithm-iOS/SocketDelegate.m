@@ -96,6 +96,7 @@
     [server disconnect];
 }
 - (void)becomeActive {
+    [self.parentVc becomeActive];
     server.IPv4Enabled = YES;
     server.IPv6Enabled = YES;
     [self acceptConnection];
