@@ -247,6 +247,7 @@
 }
 
 -(void)openOrCloseFunc {
+    if (self->touchCount > 1) return;
     if (funcViewOn) {
         [self closeFunc];
     } else {
@@ -296,6 +297,7 @@
     [server BroadcastData:io];
 }
 -(void)updateTouches:(UIEvent *)event {
+    self->touchCount = event.allTouches.count;
     if (openCloseEventOnce) {
         if (event.allTouches.count == 1 && [event.allTouches anyObject].phase == UITouchPhaseEnded) {
             openCloseEventOnce = NO;

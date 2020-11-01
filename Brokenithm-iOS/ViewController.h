@@ -33,6 +33,7 @@
     BOOL invertAir;
     NSNumber *menuHoldDuration;
     UILongPressGestureRecognizer *openCloseHold;
+    int touchCount;
 }
 @property UIView *airIOView;
 @property UIView *sliderIOView;
